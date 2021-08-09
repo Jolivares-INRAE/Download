@@ -1,25 +1,24 @@
 #!/bin/bash
-#SBATCH --cpus-per-task=1		#application monothread
-#SBATCH --mem-per-cpu=2G		#utilisation mémoire très faible, travaille à la volée
-#SBATCH --time=01:00:00
-#SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=jolivares
+#SBATCH --cpus-per-task=1		# monothread
+#SBATCH --mem-per-cpu=2G		
 
-#on boucle sur tous les répliquats
-for k in {1..8}
+#boucle sur tous les contrastes
+for k in {1..6}
 do
-for i in {1..26}
+#on boucle sur tous les fichiers resultats
+for i in {1..25}
 do
-file1=$(echo "/home/msiegwart/work/BayPass/Input/GWAS-13pops/chr1/snpdet.sub""$i""")				# <-- corriger le chemin
-file2=$(echo "GWAS-13pops-chr1_C8.sub""$i""_summary_contrast.out")							# <-- corriger le nom
-sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP 											#on remplace tous les séparateurs par tabulation, ça évite les bugs
-sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubC2
-paste SubSNP SubC2 >> GWAS-13pops-chr1.contrast-C$k.merged2			# <-- corriger le nom
-done
-#on tri par chr puis par pos et on reconstruit l'entête
+file1=$(echo "/home/chemin/snpdet.sub""$i""")                                         # chemin complet, pas de lien ~
+file2=$(echo "Poolseq.sub""$i""_summary_contrast.out")                                # adapter le prefixe
+sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP                                          #on remplace tous les séparateurs par tabulation, ça évite les bugs
+sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubC2  # ne copie que les resultats du contraste k
+paste SubSNP SubC2 >> Poolseq.contrast-C$k.merged2                                    # merge les SNP avec les résultats dans un fichier pour la covariable k
+done                                                                                  #les résultats de 1 à 25 sont concaténés à la suite
+#tri par chromosome et par position
 sort -k1,1 -k2,2n GWAS-13pops-chr1.contrast-C$k.merged2 > GWAS-13pops-chr1.contrast-C$k.merged.sorted2	# <-- corriger le nom
+#reconstruit l'entête
 sed -i '1i chr pos All1 All2 CONTRAST MRK M_C2 SD_C2 C2_std C2_log10(1/pval)' GWAS-13pops-chr1.contrast-C$k.merged.sorted2	# <-- corriger le nom
-#on vire les fichiers tmp
+#supprime les fichiers tmp
 rm SubSNP
 rm SubC2
-done
+done                                                      #chaque contraste donne un fichier complet de résultats.
