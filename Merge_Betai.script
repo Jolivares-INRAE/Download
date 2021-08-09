@@ -8,12 +8,12 @@ do
 #boucle sur tous les fichiers resultats
 for i in {1..25}
 do
-file1=$(echo "/home/chemin/snpdet.sub""$i""")             # chemin complet, pas de lien ~
-file2=$(echo "Poolseq.sub""$i""_summary_betai_reg.out")   # adapter le prefixe
-sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP              # sed remplace tous les séparateurs par tabulation, ça évite les bugs
-sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubBetai #ne copie que les resultats de la covariable k
-paste SubSNP SubBetai >> Poolseq.Betai-Cov$k.merged       # merge les SNP avec les résultats dans un fichier pour la covariable k
-done                                                      #les résultats de 1 à 25 sont concaténés à la suite
+file1=$(echo "/home/chemin/snpdet.sub""$i""")                                           # chemin complet, pas de lien ~
+file2=$(echo "Poolseq.sub""$i""_summary_betai_reg.out")                                 # adapter le prefixe
+sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP                                            # sed remplace tous les séparateurs par tabulation, ça évite les bugs
+sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubBetai # ne copie que les resultats de la covariable k
+paste SubSNP SubBetai >> Poolseq.Betai-Cov$k.merged                                     # merge les SNP avec les résultats dans un fichier pour la covariable k
+done                                                                                    #les résultats de 1 à 25 sont concaténés à la suite
 #tri par chromosome et par position
 sort -k1,1 -k2,2n Poolseq.Betai-Cov$k.merged > Poolseq.Betai-Cov$k.merged.sorted
 #reconstruit l'entête
