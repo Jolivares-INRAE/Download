@@ -12,12 +12,12 @@ file1=$(echo "/home/chemin/snpdet.sub""$i""")                                   
 file2=$(echo "Poolseq.sub""$i""_summary_contrast.out")                                # adapter le prefixe
 sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP                                          #on remplace tous les séparateurs par tabulation, ça évite les bugs
 sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubC2  # ne copie que les resultats du contraste k
-paste SubSNP SubC2 >> Poolseq.contrast-C$k.merged2                                    # merge les SNP avec les résultats dans un fichier pour la covariable k
+paste SubSNP SubC2 >> Poolseq.contrast-C$k.merged                                     # merge les SNP avec les résultats dans un fichier pour la covariable k
 done                                                                                  #les résultats de 1 à 25 sont concaténés à la suite
 #tri par chromosome et par position
-sort -k1,1 -k2,2n GWAS-13pops-chr1.contrast-C$k.merged2 > GWAS-13pops-chr1.contrast-C$k.merged.sorted2	# <-- corriger le nom
+sort -k1,1 -k2,2n Poolseq.contrast-C$k.merged > Poolseq.contrast-C$k.merged.sorted
 #reconstruit l'entête
-sed -i '1i chr pos All1 All2 CONTRAST MRK M_C2 SD_C2 C2_std C2_log10(1/pval)' GWAS-13pops-chr1.contrast-C$k.merged.sorted2	# <-- corriger le nom
+sed -i '1i chr pos All1 All2 CONTRAST MRK M_C2 SD_C2 C2_std C2_log10(1/pval)' Poolseq.contrast-C$k.merged.sorted
 #supprime les fichiers tmp
 rm SubSNP
 rm SubC2
