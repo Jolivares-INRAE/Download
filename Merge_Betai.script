@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --cpus-per-task=1		#application monothread
+#SBATCH --mem-per-cpu=4G		#utilisation mémoire très faible, travaille à la volée
+#SBATCH --time=00:10:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=jolivares
+
+#on boucle sur tous les répliquats
+for k in {1..3}
+do
+for i in {1..26}
+do
+file1=$(echo "/home/msiegwart/work/BayPass/Input/GWAS-13pops/chr1/snpdet.sub""$i""")					# <-- corriger le chemin
+file2=$(echo "GWAS-13pops-chr1_C8.sub""$i""_summary_betai_reg.out")							# <-- corriger le nom
+sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP
+sed -e "s/[[:space:]]\+/ /g" $file2 | awk -vK="$k" '{if($1 == K) {print}}' - > SubBetai
+paste SubSNP SubBetai >> GWAS-13pops-chr1_C8.Betai-Cov$k.merged				# <-- corriger le nom
+done
+#on tri par pos et on reconstruit l'entête
+sort -k1,1 -k2,2n GWAS-13pops-chr1_C8.Betai-Cov$k.merged > GWAS-13pops-chr1_C8.Betai-Cov$k.merged.sorted		# <-- corriger le nom
+sed -i '1i chr pos All1 All2 COVARIABLE MRK M_Pearson SD_Pearson BF(dB) Beta_is SD_Beta_is eBPis' GWAS-13pops-chr1_C8.Betai-Cov$k.merged.sorted 		# <-- corriger le nom
+#on vire les fichiers tmp
+rm SubSNP
+rm SubBetai
+done
