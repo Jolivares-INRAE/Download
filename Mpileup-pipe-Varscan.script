@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --cpus-per-task=1	#Monothread
+#SBATCH --mem-per-cpu=2G	#faible consommation
+
+module load bioinfo/samtools-1.12
+module load bioinfo/VarScan-2.4.2
+
+ls *.bam | sed -r 's/^.+\///' | sed -r 's/.bam//' > NameList.txt
+ls -1 *.bam > BamList.txt
+
+samtools mpileup -C 50 -d 5000 -q 20 \
+-r chr29 \
+-f Reference.fas \
+-b BamList.txt | java -Xmx2G -jar $VARSCAN mpileup2cns \
+--variants \
+--min-coverage 5 \
+--min-avg-qual 20 \
+--min-var-freq 0.001 \
+--p-value 0.5 \
+--output-vcf 1 \
+--vcf-sample-list NameList.txt > Poolseq.vcf
+
+module purge
+
