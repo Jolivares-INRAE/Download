@@ -5,11 +5,11 @@
 #on boucle sur tous les résultats
 for i in {1..25}
 do
-file1=$(echo "/home/chemin/snpdet.sub""$i""")		                # chemin complet, pas de lien ~ 
-file2=$(echo "Poolseq.sub""$i""_summary_pi_xtx.out")					  # adapter le préfixe
-sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP									  # sed remplace tous les séparateurs par tabulation, ça évite les bugs
+file1=$(echo "/home/chemin/snpdet.sub""$i""")                   # chemin complet, pas de lien ~ 
+file2=$(echo "Poolseq.sub""$i""_summary_pi_xtx.out")            # adapter le préfixe
+sed -e "s/[[:space:]]\+/ /g" $file1 > SubSNP                    # sed remplace tous les séparateurs par tabulation, ça évite les bugs
 sed -e "s/[[:space:]]\+/ /g" $file2 | grep -v "MRK" - > SubXtX  # copie les résultats sauf l'entête
-paste SubSNP SubXtX - >> Poolseq.xtx.merged		                  # merge les SNP avec les résultats
+paste SubSNP SubXtX - >> Poolseq.xtx.merged                     # merge les SNP avec les résultats
 done                                                            #les résultats de 1 à 25 sont concaténés à la suite
 #tri par chromosome et par position 
 sort -k1,1 -k2,2n Poolseq.xtx.merged > Poolseq.xtx.merged.sorted
