@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --array=0-24			#array de 25 jobs
+#SBATCH --cpus-per-task=1		#nbr de CPU par job
+#SBATCH --mem-per-cpu=2G
+
+
+module load system/R-3.4.3
+module load bioinfo/baypass_2.2
+module load compiler/intel-2018.0.128
+
+#récupère la liste des fichiers à analyser
+FILES=($(ls ~/chemin/genobaypass.sub* | sed -r 's/^.+\///'))
+#Attribue un job à chaque fichier
+INPUT=${FILES[$SLURM_ARRAY_TASK_ID]}
+#Formate la sortie
+OUTPUT=${FILES[$SLURM_ARRAY_TASK_ID]/genobaypass/Poolseq}
+
+#Analyses les 25 fichiers en parallele
+baypass -gfile ~/chemin/$INPUT \
+-poolsizefile ~/chemin/poolsize \
+-d0yij 20 \
+-contrastfile ~/chemin/contraste.txt \
+-efile ~/chemin/ecotype.txt \
+-outprefix $OUTPUT
+
+module purge
